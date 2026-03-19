@@ -1,0 +1,88 @@
+name: Post diário 18h BRT
+
+on:
+  schedule:
+    # 21:00 UTC = 18:00 BRT (UTC-3)
+    - cron: "0 21 * * *"
+  # Permite rodar manualmente pela aba Actions para testar
+  workflow_dispatch:
+
+jobs:
+  postar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Instalar FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu
+
+      - name: Instalar dependências Python
+        run: pip install -r requirements.txt
+
+      - name: Verificar se há tema na fila
+        run: |
+          python -c "
+          import json, sys
+          from pathlib import Path
+          fila = json.loads(Path('data/topics_queue.json').read_text())
+          pendentes = [t for t in fila if t['status'] == 'pendente']
+          if not pendentes:
+              print('Fila vazia — rodando pesquisa de emergência')
+              sys.exit(1)
+          print(f'Temas pendentes: {len(pendentes)}')
+          " || python scripts/1_research.py
+
+      - name: 1 — Pesquisa de tendências (se necessário)
+        run: python scripts/1_research.py
+        env:
+          # pytrends não precisa de key
+
+      - name: 2 — Gerar roteiro (LLM cascade)
+        run: python scripts/2_script_gen.py
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+      - name: 3 — Gerar narração (TTS cascade)
+        run: python scripts/3_tts.py
+        env:
+          KOKORO_API_KEY: ${{ secrets.KOKORO_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          # edge-tts e gTTS não precisam de key
+
+      - name: 4 — Montar vídeo
+        run: python scripts/4_video_assembly.py
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+
+      - name: 5 — Postar no TikTok
+        run: python scripts/5_post.py
+        env:
+          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+
+      - name: Salvar histórico no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/topics_queue.json data/historico_posts.json || true
+          git diff --staged --quiet || git commit -m "chore: atualiza histórico $(date +'%Y-%m-%d')"
+          git push || true
+
+      - name: Limpar arquivos temporários grandes
+        if: always()
+        run: |
+          rm -f data/audio_narrado.mp3
+          rm -f data/video_final.mp4
+          rm -rf data/tmp/
