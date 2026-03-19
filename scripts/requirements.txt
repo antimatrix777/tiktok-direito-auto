@@ -1,0 +1,9 @@
+pytrends==4.9.2
+requests==2.31.0
+moviepy==1.0.3
+edge-tts==6.1.9
+gtts==2.5.1
+Pillow==10.3.0
+numpy==1.26.4
+pysrt==1.1.2
+python-dotenv==1.0.1
