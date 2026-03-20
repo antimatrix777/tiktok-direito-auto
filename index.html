@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descodificando — Seus Direitos em 60 Segundos</title>
+<meta name="description" content="Plataforma de conteúdo jurídico acessível para o TikTok. Direito do consumidor explicado de forma simples para todos os brasileiros.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf7;
+    --bg2: #f3f3ee;
+    --ink: #141410;
+    --ink2: #3a3a32;
+    --muted: #8a8a7a;
+    --accent: #fe2c55;
+    --accent-dark: #c8001e;
+    --accent2: #1a1aff;
+    --teal: #00c2a0;
+    --border: #e2e2d8;
+    --surface: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(250,250,247,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.4px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .nav-logo-mark {
+    width: 34px; height: 34px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+    color: var(--ink2);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-cta {
+    padding: 10px 22px;
+    background: var(--ink);
+    color: white !important;
+    border-radius: 99px;
+    font-weight: 600;
+    font-size: 13px !important;
+    transition: all 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--accent) !important; color: white !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 48px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-bg-circle.c1 {
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(254,44,85,0.07) 0%, transparent 65%);
+    top: -200px; right: -200px;
+  }
+
+  .hero-bg-circle.c2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(26,26,255,0.05) 0%, transparent 65%);
+    bottom: -100px; left: -100px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink2);
+    margin-bottom: 36px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .hero-tag span {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 2s ease infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    line-height: 1.05;
+    letter-spacing: -2px;
+    max-width: 800px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--ink2);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    font-weight: 400;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(254,44,85,0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(254,44,85,0.4);
+  }
+
+  .btn-ghost {
+    padding: 16px 28px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { border-color: var(--ink); background: var(--ink); color: white; }
+
+  .tiktok-svg { width: 18px; height: 18px; fill: white; }
+
+  .hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-top: 72px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-val {
+    font-family: 'Instrument Serif', serif;
+    font-size: 36px;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .hero-stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 100px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 60px;
+  }
+
+  .section-title em { font-style: italic; color: var(--muted); }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+
+  .step-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .step-card:hover::before { transform: scaleX(1); }
+  .step-card:hover { box-shadow: 0 16px 40px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+  .step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  .step-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .step-card h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .step-card p {
+    font-size: 14px;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  /* ── FEATURES ── */
+  .features-bg {
+    background: var(--ink);
+    color: white;
+    padding: 100px 48px;
+  }
+
+  .features-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .feature-item {
+    padding: 40px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.2s;
+  }
+
+  .feature-item:hover { background: rgba(255,255,255,0.06); }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .feature-item h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+  }
+
+  .feature-item p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+  }
+
+  .features-bg .section-label { color: var(--teal); }
+  .features-bg .section-title { color: white; }
+
+  /* ── CTA ── */
+  .cta-section {
+    padding: 100px 48px;
+    text-align: center;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cta-section .section-title { margin-bottom: 16px; }
+
+  .cta-section p {
+    color: var(--ink2);
+    font-size: 16px;
+    margin-bottom: 40px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 48px;
+    background: var(--ink);
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  footer a {
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  footer a:hover { color: white; }
+
+  .footer-links { display: flex; gap: 24px; }
+
+  /* ── ANIMAÇÕES DE ENTRADA ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .section { padding: 60px 24px; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    footer { padding: 32px 24px; flex-direction: column; }
+    .hero-stats { gap: 24px; }
+    .stat-divider { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">⚖️</div>
+    Descodificando
+  </a>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#recursos">Recursos</a></li>
+    <li><a href="privacy-policy.html">Privacidade</a></li>
+    <li><a href="app.html" class="nav-cta">Acessar painel</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-circle c1"></div>
+  <div class="hero-bg-circle c2"></div>
+
+  <div class="hero-tag">
+    <span></span>
+    Conteúdo jurídico para TikTok
+  </div>
+
+  <h1>
+    Seus direitos<br>
+    em <em>60 segundos</em>
+  </h1>
+
+  <p class="hero-sub">
+    Plataforma que transforma leis complexas em conteúdo
+    acessível e viral. Direito do consumidor para todo brasileiro.
+  </p>
+
+  <div class="hero-actions">
+    <a href="app.html" class="btn-primary">
+      <svg class="tiktok-svg" viewBox="0 0 24 24">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+      </svg>
+      Conectar com TikTok
+    </a>
+    <a href="#como-funciona" class="btn-ghost">Ver como funciona</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-val">60s</div>
+      <div class="hero-stat-label">por vídeo</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">100%</div>
+      <div class="hero-stat-label">CDC baseado</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">1/dia</div>
+      <div class="hero-stat-label">publicação automática</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="hero-stat">
+      <div class="hero-stat-val">BR</div>
+      <div class="hero-stat-label">foco no Brasil</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="section" id="como-funciona">
+  <div class="section-label">Como funciona</div>
+  <div class="section-title">
+    Do tema ao vídeo<br>
+    <em>em minutos</em>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step-card fade-in">
+      <div class="step-num">01 —</div>
+      <span class="step-icon">🔍</span>
+      <h3>Pesquisa de tendências</h3>
+      <p>Identificamos automaticamente os temas de direito do consumidor que os brasileiros mais buscam naquela semana.</p>
+    </div>
+    <div class="step-card fade-in" style="transition-delay:0.1s">
+      <div class="step-num">02 —</div>
+      <span class="step-icon">✍️</span>
+      <h3>Roteiro com IA</h3>
+      <p>Um roteiro viral é gerado: gancho impactante, 3 passos práticos baseados no CDC, e call-to-action que gera engajamento.</p>
+    </div>
+    <div class="step-card fade-in" style="transition-delay:0.2s">
+      <div class="step-num">03 —</div>
+      <span class="step-icon">🎬</span>
+      <h3>Vídeo montado</h3>
+      <p>Narração em PT-BR, footage de fundo, legendas animadas e marca d'água — tudo pronto para o TikTok.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RECURSOS -->
+<div class="features-bg" id="recursos">
+  <div class="features-inner">
+    <div class="section-label">Recursos</div>
+    <div class="section-title">
+      Tudo que você precisa<br>
+      <em>para crescer no TikTok</em>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-item">
+        <span class="feature-icon">⚖️</span>
+        <h3>Baseado no CDC</h3>
+        <p>Todo conteúdo referencia artigos reais do Código de Defesa do Consumidor — credibilidade garantida.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🤖</span>
+        <h3>Publicação automática</h3>
+        <p>Integração direta com a API oficial do TikTok. Um vídeo novo publicado todos os dias, sem intervenção manual.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📱</span>
+        <h3>Formato nativo</h3>
+        <p>Vídeos em 1080×1920, legendas animadas, narração natural — otimizados para o feed vertical do TikTok.</p>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📊</span>
+        <h3>Tendências em tempo real</h3>
+        <p>Os temas são escolhidos com base no que os brasileiros estão buscando agora — máxima relevância.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-label">Começar agora</div>
+  <div class="section-title">
+    Conecte sua conta<br>
+    <em>e publique hoje</em>
+  </div>
+  <p>
+    Autorize o acesso e comece a publicar conteúdo
+    jurídico de qualidade no seu TikTok automaticamente.
+  </p>
+  <a href="app.html" class="btn-primary" style="display:inline-flex; margin: 0 auto;">
+    <svg class="tiktok-svg" viewBox="0 0 24 24">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+    </svg>
+    Entrar com TikTok
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 Descodificando. Todos os direitos reservados.</span>
+  <div class="footer-links">
+    <a href="privacy-policy.html">Política de Privacidade</a>
+    <a href="terms.html">Termos de Uso</a>
+    <a href="mailto:contato@descodificando.com.br">Contato</a>
+  </div>
+</footer>
+
+<script>
+  // Fade in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
