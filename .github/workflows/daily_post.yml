@@ -1,17 +1,12 @@
 name: Post diário 18h BRT
-
 on:
   schedule:
-    # 21:00 UTC = 18:00 BRT (UTC-3)
     - cron: "0 21 * * *"
-  # Permite rodar manualmente pela aba Actions para testar
   workflow_dispatch:
-
 jobs:
   postar:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - name: Checkout do repositório
         uses: actions/checkout@v4
@@ -45,8 +40,6 @@ jobs:
 
       - name: 1 — Pesquisa de tendências (se necessário)
         run: python scripts/1_research.py
-        env:
-          # pytrends não precisa de key
 
       - name: 2 — Gerar roteiro (LLM cascade)
         run: python scripts/2_script_gen.py
@@ -60,7 +53,6 @@ jobs:
         env:
           KOKORO_API_KEY: ${{ secrets.KOKORO_API_KEY }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
-          # edge-tts e gTTS não precisam de key
 
       - name: 4 — Montar vídeo
         run: python scripts/4_video_assembly.py
