@@ -74,9 +74,10 @@ def montar_caption(roteiro: dict) -> str:
 
 # ─── TikTok Content Posting API ──────────────────────────────────────────────
 
-def iniciar_upload(access_token: str, tamanho_bytes: int) -> dict:
+def iniciar_upload(access_token: str, tamanho_bytes: int, caption: str) -> dict:
     """
     Passo 1: inicializa o upload e obtém a URL de envio do vídeo.
+    A caption (title) DEVE ser enviada aqui — não existe endpoint separado para isso.
     """
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -84,7 +85,7 @@ def iniciar_upload(access_token: str, tamanho_bytes: int) -> dict:
     }
     payload = {
         "post_info": {
-            "title": "",          # será preenchido depois
+            "title": caption,                      # ← caption vai AQUI no init
             "privacy_level": "PUBLIC_TO_EVERYONE",
             "disable_duet": False,
             "disable_comment": False,
@@ -93,7 +94,7 @@ def iniciar_upload(access_token: str, tamanho_bytes: int) -> dict:
         "source_info": {
             "source": "FILE_UPLOAD",
             "video_size": tamanho_bytes,
-            "chunk_size": tamanho_bytes,   # upload em um único chunk
+            "chunk_size": tamanho_bytes,           # upload em um único chunk
             "total_chunk_count": 1,
         },
     }
@@ -103,6 +104,14 @@ def iniciar_upload(access_token: str, tamanho_bytes: int) -> dict:
         json=payload,
         timeout=30,
     )
+
+    # Loga resposta completa para facilitar debug
+    log.info(f"Resposta init — status HTTP: {resp.status_code}")
+    try:
+        log.info(f"Resposta init — body: {resp.text[:500]}")
+    except Exception:
+        pass
+
     resp.raise_for_status()
     data = resp.json()
 
@@ -114,7 +123,7 @@ def iniciar_upload(access_token: str, tamanho_bytes: int) -> dict:
 
 def enviar_video(upload_url: str, video_path: Path) -> None:
     """
-    Passo 2: envia o arquivo de vídeo para a URL de upload.
+    Passo 2: envia o arquivo de vídeo para a URL de upload (PUT direto).
     """
     tamanho = video_path.stat().st_size
     with open(video_path, "rb") as f:
@@ -129,24 +138,18 @@ def enviar_video(upload_url: str, video_path: Path) -> None:
             data=f,
             timeout=120,
         )
+    log.info(f"Vídeo enviado — status HTTP: {resp.status_code}")
     resp.raise_for_status()
-    log.info(f"Vídeo enviado: status {resp.status_code}")
 
 
-def publicar_post(access_token: str, publish_id: str, caption: str) -> dict:
+def checar_status(access_token: str, publish_id: str) -> dict:
     """
-    Passo 3: finaliza a publicação com a caption.
+    Passo 3: consulta o status do processamento do vídeo.
+    Este endpoint é apenas leitura — não altera caption nem privacidade.
     """
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json; charset=UTF-8",
-    }
-    payload = {
-        "publish_id": publish_id,
-        "post_info": {
-            "title": caption,
-            "privacy_level": "PUBLIC_TO_EVERYONE",
-        },
     }
     resp = requests.post(
         f"{TIKTOK_API_BASE}/post/publish/status/fetch/",
@@ -171,24 +174,30 @@ def postar_no_tiktok(video_path: Path, caption: str) -> str:
     log.info(f"Iniciando postagem: {video_path.name} ({tamanho / 1024 / 1024:.1f} MB)")
 
     def _fluxo_completo():
-        # 1. Inicia upload
-        log.info("Passo 1/3: inicializando upload...")
-        dados_upload = iniciar_upload(access_token, tamanho)
-        upload_url  = dados_upload["upload_url"]
-        publish_id  = dados_upload["publish_id"]
-        log.info(f"publish_id: {publish_id}")
+        # 1. Inicia upload com caption já incluída
+        log.info("Passo 1/3: inicializando upload com caption...")
+        dados_upload = iniciar_upload(access_token, tamanho, caption)  # ← caption passada aqui
+        upload_url = dados_upload["upload_url"]
+        publish_id = dados_upload["publish_id"]
+        log.info(f"publish_id obtido: {publish_id}")
 
-        # 2. Envia o vídeo
-        log.info("Passo 2/3: enviando vídeo...")
+        # 2. Envia o arquivo de vídeo
+        log.info("Passo 2/3: enviando arquivo de vídeo...")
         enviar_video(upload_url, video_path)
 
-        # 3. Aguarda processamento do TikTok (normalmente 5–15s)
-        log.info("Passo 3/3: aguardando processamento (15s)...")
-        time.sleep(15)
+        # 3. Aguarda processamento do TikTok (normalmente 5–30s)
+        log.info("Passo 3/3: aguardando processamento (20s)...")
+        time.sleep(20)
 
-        # 4. Verifica status
-        status = publicar_post(access_token, publish_id, caption)
+        # 4. Verifica status final
+        status = checar_status(access_token, publish_id)
         log.info(f"Status da publicação: {status}")
+
+        # Verifica se houve erro no processamento
+        status_code = status.get("data", {}).get("status", "")
+        if status_code == "FAILED":
+            motivo = status.get("data", {}).get("fail_reason", "desconhecido")
+            raise RuntimeError(f"TikTok rejeitou o vídeo: {motivo}")
 
         return publish_id
 
@@ -208,16 +217,17 @@ def salvar_historico(roteiro: dict, publish_id: str):
     else:
         historico = []
 
+    from datetime import datetime
     historico.insert(0, {
-        "publish_id": publish_id,
-        "tema": roteiro.get("tema"),
-        "gancho": roteiro.get("gancho"),
-        "caption": roteiro.get("caption_post"),
-        "hashtags": roteiro.get("hashtags"),
-        "llm_usado": roteiro.get("llm_usado"),
-        "tts_provedor": roteiro.get("tts_provedor"),
-        "duracao_segundos": roteiro.get("duracao_segundos"),
-        "data_post": __import__("datetime").datetime.now().isoformat(),
+        "publish_id":        publish_id,
+        "tema":              roteiro.get("tema"),
+        "gancho":            roteiro.get("gancho"),
+        "caption":           roteiro.get("caption_post"),
+        "hashtags":          roteiro.get("hashtags"),
+        "llm_usado":         roteiro.get("llm_usado"),
+        "tts_provedor":      roteiro.get("tts_provedor"),
+        "duracao_segundos":  roteiro.get("duracao_segundos"),
+        "data_post":         datetime.now().isoformat(),
     })
 
     # Mantém histórico dos últimos 90 posts
@@ -241,13 +251,13 @@ def main():
         roteiro = json.load(f)
 
     # 2. Verifica vídeo
-    video_path = Path(roteiro.get("video_path", DATA_DIR / "video_final.mp4"))
+    video_path = Path(roteiro.get("video_path", str(DATA_DIR / "video_final.mp4")))
     if not video_path.exists():
         raise FileNotFoundError(f"Vídeo não encontrado: {video_path}")
 
     # 3. Monta caption
     caption = montar_caption(roteiro)
-    log.info(f"Caption ({len(caption)} chars):\n{caption}")
+    log.info(f"Caption montada ({len(caption)} chars):\n{caption}")
 
     # 4. Posta
     publish_id = postar_no_tiktok(video_path, caption)
@@ -258,9 +268,9 @@ def main():
 
     log.info("=== Postagem concluída ===")
     print(json.dumps({
-        "status": "ok",
-        "publish_id": publish_id,
-        "tema": roteiro.get("tema"),
+        "status":        "ok",
+        "publish_id":    publish_id,
+        "tema":          roteiro.get("tema"),
         "caption_chars": len(caption),
     }, ensure_ascii=False))
 
