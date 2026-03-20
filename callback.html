@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Callback</title></head>
+<body style="font-family:sans-serif;text-align:center;padding:60px">
+<h2 id="msg">Processando autorização...</h2>
+<p id="code-display"></p>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    document.getElementById('msg').style.color = 'green';
+    document.getElementById('msg').textContent = 'Autorizado com sucesso!';
+    document.getElementById('code-display').innerHTML = 
+      '<strong>Copie este código e cole no terminal:</strong><br><br>' +
+      '<code style="font-size:14px;background:#f0f0f0;padding:10px;display:block;word-break:break-all">' + code + '</code>';
+  } else {
+    document.getElementById('msg').style.color = 'red';
+    document.getElementById('msg').textContent = 'Erro: código não encontrado.';
+  }
+</script>
+</body>
+</html>
