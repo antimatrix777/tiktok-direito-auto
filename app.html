@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descodificando — Painel de Publicação</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #fe2c55;
+    --accent2: #25f4ee;
+    --text: #f0f0f8;
+    --muted: #6b6b8a;
+    --success: #22c55e;
+    --tiktok-grad: linear-gradient(135deg, #fe2c55, #ff0050);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── TELA DE LOGIN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(254,44,85,0.12) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    border-radius: 50%;
+  }
+
+  #login-screen::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(37,244,238,0.08) 0%, transparent 70%);
+    bottom: -50px; left: -50px;
+    border-radius: 50%;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 56px 48px;
+    width: 440px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+  }
+
+  .logo-mark {
+    width: 64px; height: 64px;
+    background: var(--tiktok-grad);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px;
+    box-shadow: 0 8px 24px rgba(254,44,85,0.4);
+  }
+
+  .login-card h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .login-card p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .tiktok-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 16px 24px;
+    background: var(--tiktok-grad);
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(254,44,85,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tiktok-login-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.2s;
+  }
+
+  .tiktok-login-btn:hover::before { background: rgba(255,255,255,0.1); }
+  .tiktok-login-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(254,44,85,0.45); }
+  .tiktok-login-btn:active { transform: translateY(0); }
+
+  .tiktok-icon {
+    width: 22px; height: 22px;
+    fill: white;
+  }
+
+  .login-footer {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── LOADING ── */
+  #loading-screen {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--bg);
+  }
+
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loading-screen p { color: var(--muted); font-size: 14px; }
+
+  /* ── DASHBOARD ── */
+  #dashboard {
+    display: none;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-logo .logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .sidebar-logo span {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(254,44,85,0.12); color: var(--accent); }
+
+  .sidebar-item .icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .avatar {
+    width: 32px; height: 32px;
+    background: var(--tiktok-grad);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-handle { font-size: 11px; color: var(--muted); }
+
+  /* Main content */
+  .main {
+    margin-left: 240px;
+    padding: 40px 48px;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .page-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .page-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(34,197,94,0.12);
+    color: var(--success);
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--accent); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: -1px;
+  }
+
+  .stat-delta {
+    font-size: 12px;
+    color: var(--success);
+    margin-top: 4px;
+  }
+
+  /* Video queue */
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .count-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .video-queue {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .video-card:hover { border-color: rgba(254,44,85,0.3); background: var(--surface2); }
+
+  .video-thumb {
+    width: 52px; height: 52px;
+    background: var(--surface2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+
+  .video-info { flex: 1; min-width: 0; }
+
+  .video-topic {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .video-meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+
+  .status-pill {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .status-ready {
+    background: rgba(37,244,238,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(37,244,238,0.2);
+  }
+
+  .status-posted {
+    background: rgba(34,197,94,0.1);
+    color: var(--success);
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+
+  .publish-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--tiktok-grad);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(254,44,85,0.3);
+  }
+
+  .publish-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(254,44,85,0.4); }
+  .publish-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Modal de sucesso */
+  #success-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    width: 420px;
+    text-align: center;
+    animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.85) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .success-icon {
+    width: 72px; height: 72px;
+    background: rgba(34,197,94,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 24px;
+    border: 2px solid rgba(34,197,94,0.3);
+  }
+
+  .modal-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .modal-card p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .publish-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    background: var(--surface2);
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-bottom: 28px;
+    display: inline-block;
+    border: 1px solid var(--border);
+  }
+
+  .modal-close {
+    padding: 12px 32px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { background: var(--border); }
+
+  /* Loading bar during publish */
+  .progress-bar {
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    margin: 16px 0 0;
+    overflow: hidden;
+    display: none;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--tiktok-grad);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TELA 1: LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-mark">⚖️</div>
+    <h1>Descodificando</h1>
+    <p>Painel de publicação automática<br>de conteúdo jurídico no TikTok</p>
+    <button class="tiktok-login-btn" onclick="fazerLogin()">
+      <svg class="tiktok-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.54V6.78a4.85 4.85 0 01-1.02-.09z"/>
+      </svg>
+      Entrar com TikTok
+    </button>
+    <p class="login-footer">Ao continuar, você autoriza a publicação<br>de vídeos em sua conta @descodificando</p>
+  </div>
+</div>
+
+<!-- ── TELA 2: CARREGANDO ── -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <p>Autenticando com o TikTok...</p>
+</div>
+
+<!-- ── TELA 3: DASHBOARD ── -->
+<div id="dashboard">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⚖️</div>
+      <span>Descodificando</span>
+    </div>
+    <div class="sidebar-item active">
+      <span class="icon">📤</span> Publicar
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">📊</span> Analytics
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">🗂️</span> Arquivo
+    </div>
+    <div class="sidebar-item">
+      <span class="icon">⚙️</span> Configurações
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="avatar">DC</div>
+        <div class="user-info">
+          <div class="user-name">Descodificando</div>
+          <div class="user-handle">@descodificando</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <div>
+        <h2>Fila de Publicação</h2>
+        <p>Conteúdo gerado e pronto para o TikTok</p>
+      </div>
+      <div class="badge">
+        <div class="badge-dot"></div>
+        Conectado ao TikTok
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Publicados hoje</div>
+        <div class="stat-value">0</div>
+        <div class="stat-delta">↑ Meta: 1 por dia</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Na fila</div>
+        <div class="stat-value" id="queue-count">3</div>
+        <div class="stat-delta">↑ Prontos para publicar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total publicados</div>
+        <div class="stat-value">0</div>
+        <div class="stat-delta">↑ Canal novo</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      Vídeos Prontos
+      <span class="count-pill" id="count-pill">3</span>
+    </div>
+
+    <div class="video-queue" id="video-queue">
+
+      <div class="video-card" id="card-1">
+        <div class="video-thumb">⚕️</div>
+        <div class="video-info">
+          <div class="video-topic">Plano de saúde negou exame? Veja o que fazer</div>
+          <div class="video-meta">
+            <span class="meta-tag">⏱ 52s</span>
+            <span class="meta-tag">📈 score 87</span>
+            <span>Gerado há 2 min</span>
+          </div>
+        </div>
+        <span class="status-pill status-ready">Pronto</span>
+        <button class="publish-btn" onclick="publicar(1, this, 'Plano de saúde negou exame')">
+          ↑ Publicar
+        </button>
+      </div>
+
+      <div class="video-card" id="card-2">
+        <div class="video-thumb">🏦</div>
+        <div class="video-info">
+          <div class="video-topic">Banco cobrou taxa indevida? É seu direito receber de volta</div>
+          <div class="video-meta">
+            <span class="meta-tag">⏱ 48s</span>
+            <span class="meta-tag">📈 score 74</span>
+            <span>Gerado há 4 min</span>
+          </div>
+        </div>
+        <span class="status-pill status-ready">Pronto</span>
+        <button class="publish-btn" onclick="publicar(2, this, 'Banco cobrou taxa indevida')">
+          ↑ Publicar
+        </button>
+      </div>
+
+      <div class="video-card" id="card-3">
+        <div class="video-thumb">📦</div>
+        <div class="video-info">
+          <div class="video-topic">Produto com defeito: a loja é OBRIGADA a trocar em 30 dias</div>
+          <div class="video-meta">
+            <span class="meta-tag">⏱ 55s</span>
+            <span class="meta-tag">📈 score 91</span>
+            <span>Gerado há 6 min</span>
+          </div>
+        </div>
+        <span class="status-pill status-ready">Pronto</span>
+        <button class="publish-btn" onclick="publicar(3, this, 'Produto com defeito')">
+          ↑ Publicar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DE SUCESSO ── -->
+<div id="success-modal">
+  <div class="modal-card">
+    <div class="success-icon">✅</div>
+    <h3>Vídeo publicado!</h3>
+    <p>Seu vídeo foi enviado com sucesso<br>para o TikTok e já está disponível.</p>
+    <div class="publish-id" id="publish-id-display">publish_id: carregando...</div>
+    <button class="modal-close" onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+  function fazerLogin() {
+    document.getElementById('login-screen').style.display = 'none';
+    const loading = document.getElementById('loading-screen');
+    loading.style.display = 'flex';
+
+    setTimeout(() => {
+      loading.style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    }, 2200);
+  }
+
+  let publishedCount = 0;
+
+  function publicar(cardId, btn, topic) {
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const card = document.getElementById('card-' + cardId);
+
+    setTimeout(() => {
+      // Atualiza o card para "Publicado"
+      const pill = card.querySelector('.status-pill');
+      pill.className = 'status-pill status-posted';
+      pill.textContent = 'Publicado';
+      btn.style.display = 'none';
+
+      // Atualiza contadores
+      publishedCount++;
+      const remaining = 3 - publishedCount;
+      document.getElementById('queue-count').textContent = remaining;
+      document.getElementById('count-pill').textContent = remaining;
+
+      // Gera publish_id fake realista
+      const fakeId = 'v_' + Math.random().toString(36).substring(2, 18).toUpperCase();
+      document.getElementById('publish-id-display').textContent = 'publish_id: ' + fakeId;
+
+      // Mostra modal de sucesso
+      const modal = document.getElementById('success-modal');
+      modal.style.display = 'flex';
+
+    }, 2000);
+  }
+
+  function fecharModal() {
+    document.getElementById('success-modal').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
